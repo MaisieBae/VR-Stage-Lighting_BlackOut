@@ -163,7 +163,6 @@ UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(uint, _DMXChannel)
         UNITY_DEFINE_INSTANCED_PROP(uint, _NineUniverseMode)
         UNITY_DEFINE_INSTANCED_PROP(uint, _EnableDMX)
-        UNITY_DEFINE_INSTANCED_PROP(uint, _EnableFineChannels)
         UNITY_DEFINE_INSTANCED_PROP(uint, _LegacyGoboRange)
     #endif
     #ifdef VRSL_AUDIOLINK
@@ -180,6 +179,8 @@ UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(half, _ThemeColorTarget)
         UNITY_DEFINE_INSTANCED_PROP(uint, _EnableThemeColorSampling)
         UNITY_DEFINE_INSTANCED_PROP(uint, _UseTraditionalSampling)
+        UNITY_DEFINE_INSTANCED_PROP(int, _BlackoutUseFallback)
+        UNITY_DEFINE_INSTANCED_PROP(float4, _BlackoutFallbackColor)
     #endif
     UNITY_DEFINE_INSTANCED_PROP(uint, _PanInvert)
     UNITY_DEFINE_INSTANCED_PROP(uint, _TiltInvert)
