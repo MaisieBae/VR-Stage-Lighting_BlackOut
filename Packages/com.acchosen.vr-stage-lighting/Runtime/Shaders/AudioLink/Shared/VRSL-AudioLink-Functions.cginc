@@ -1,6 +1,6 @@
-#define IF(a, b, c) lerp(b, c, step((fixed) (a), 0));
+﻿#define IF(a, b, c) lerp(b, c, step((fixed) (a), 0));
 #ifndef RAW
-    #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 #endif
 float4 RGBtoHSV(in float3 RGB)
 {
@@ -13,7 +13,7 @@ float4 RGBtoHSV(in float3 RGB)
         HSV.y = C / HSV.z;
         float3 Delta = (HSV.z - RGB) / C;
         Delta.rgb -= Delta.brg;
-        Delta.rg += float2(2,4);
+        Delta.rg += float2(2, 4);
         if (RGB.r >= HSV.z)
             HSV.x = Delta.b;
         else if (RGB.g >= HSV.z)
@@ -22,24 +22,24 @@ float4 RGBtoHSV(in float3 RGB)
             HSV.x = Delta.g;
         HSV.x = frac(HSV.x / 6);
     }
-    return float4(HSV,1);
+    return float4(HSV, 1);
 }
 float3 Hue(float H)
 {
     float R = abs(H * 6 - 3) - 1;
     float G = 2 - abs(H * 6 - 2);
     float B = 2 - abs(H * 6 - 4);
-    return saturate(float3(R,G,B));
+    return saturate(float3(R, G, B));
 }
 float4 HSVtoRGB(in float3 HSV)
 {
-    return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z,1);
+    return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z, 1);
 }
 #ifndef RAW
-    inline float AudioLinkLerp3_g5( int Band, float Delay )
-    {
-        return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
-    }
+inline float AudioLinkLerp3_g5(int Band, float Delay)
+{
+    return AudioLinkLerp(ALPASS_AUDIOLINK + float2(Delay, Band)).r;
+}
 #endif
 uint checkPanInvertY()
 {
@@ -50,38 +50,44 @@ uint checkTiltInvertZ()
     return (uint) UNITY_ACCESS_INSTANCED_PROP(Props, _TiltInvert);
 }
 
-
-
+// ── Blackout fallback helper ──────────────────────────────────────────────────
+// Single source-of-truth for all AudioLink output paths.
+// When the computed color is effectively black AND _BlackoutUseFallback is on,
+// returns the fallback color; otherwise returns the color unchanged.
+// Called from both GetTextureSampleColor() and CustomStandardLightingBRDF().
+inline float4 ApplyBlackoutFallback(float4 color)
+{
+    float luma = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
+    float isBlack = 1.0 - step(0.001, luma);
+    float4 fallback = UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutUseFallback) > 0
+        ? UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutFallbackColor)
+        : float4(0, 0, 0, color.a);
+    return lerp(color, float4(fallback.rgb, color.a), isBlack);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 float4 GetTextureSampleColor()
 {
     float4 rawColor = tex2Dlod(_SamplingTexture, float4(
-        UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleX),
-        UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleY),
+        UNITY_ACCESS_INSTANCED_PROP(Props, _TextureColorSampleX),
+        UNITY_ACCESS_INSTANCED_PROP(Props, _TextureColorSampleY),
         0, 0
     ));
 
-    float luma = dot(rawColor.rgb, float3(0.2126, 0.7152, 0.0722));
-    if (luma <= 0.001)
-    {
-        if (UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutUseFallback) > 0)
-            return UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutFallbackColor);
-        else
-            return float4(0, 0, 0, rawColor.a);
-    }
-
     float4 h = RGBtoHSV(rawColor.rgb);
     h.z = 1.0;
-    return UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0
+    float4 processed = UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0
         ? rawColor * _RenderTextureMultiplier
         : (HSVtoRGB(h) * _RenderTextureMultiplier);
+
+    return ApplyBlackoutFallback(processed);
 }
 
 float4 GetThemeSampleColor()
 {
-    switch(UNITY_ACCESS_INSTANCED_PROP(Props, _ThemeColorTarget))
+    switch (UNITY_ACCESS_INSTANCED_PROP(Props, _ThemeColorTarget))
     {
         case 1:
             return AudioLinkData(ALPASS_THEME_COLOR0);
@@ -92,34 +98,33 @@ float4 GetThemeSampleColor()
         case 4:
             return AudioLinkData(ALPASS_THEME_COLOR3);
         default:
-            return float4(0,0,0,1);
+            return float4(0, 0, 0, 1);
     }
 }
 
 uint isStrobe()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_EnableStrobe);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableStrobe);
 }
 
 uint instancedGOBOSelection()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_ProjectionSelection);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _ProjectionSelection);
 }
 
 float getOffsetX()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_FixtureRotationX);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _FixtureRotationX);
 }
 
 float getOffsetY()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_FixtureBaseRotationY);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _FixtureBaseRotationY);
 }
 
 float getStrobeFreq()
-
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_StrobeFreq);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _StrobeFreq);
 }
 #ifdef RAW
     float4 getEmissionColor()
@@ -131,21 +136,21 @@ float getStrobeFreq()
 
 float getConeWidth()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_ConeWidth) - 1.25;
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _ConeWidth) - 1.25;
 }
 
 uint isGOBOSpin()
 {
-    return UNITY_ACCESS_INSTANCED_PROP(Props,_EnableSpin);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableSpin);
 }
 
 float getConeLength()
 {
-    #ifdef RAW
+#ifdef RAW
         return UNITY_ACCESS_INSTANCED_PROP(Props, _ConeLength)+10.0f;
-    #else
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _ConeLength);
-    #endif
+#else
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _ConeLength);
+#endif
 }
 float getMaxConeLength()
 {
@@ -154,7 +159,7 @@ float getMaxConeLength()
 
 float getGlobalIntensity()
 {
-    return lerp(1.0,UNITY_ACCESS_INSTANCED_PROP(Props, _GlobalIntensity), UNITY_ACCESS_INSTANCED_PROP(Props, _GlobalIntensityBlend));
+    return lerp(1.0, UNITY_ACCESS_INSTANCED_PROP(Props, _GlobalIntensity), UNITY_ACCESS_INSTANCED_PROP(Props, _GlobalIntensityBlend));
 }
 
 float getFinalIntensity()
@@ -162,62 +167,62 @@ float getFinalIntensity()
     return UNITY_ACCESS_INSTANCED_PROP(Props, _FinalIntensity);
 }
 #ifndef RAW///////////////////////////////////////////////////////////////////////////////////////
-    float getNumBands()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _NumBands);
-    }
+float getNumBands()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _NumBands);
+}
 
-    float getBand()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _Band);
-    }
+float getBand()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _Band);
+}
 
-    float getDelay()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _Delay);
-    }
+float getDelay()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _Delay);
+}
 
-    float getBandMultiplier()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _BandMultiplier);
-    }
+float getBandMultiplier()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _BandMultiplier);
+}
 
-    float checkIfAudioLink()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableAudioLink);
-    }
+float checkIfAudioLink()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableAudioLink);
+}
 
-    uint checkIfColorChord()
-    {
-        return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableColorChord);
-    }
+uint checkIfColorChord()
+{
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _EnableColorChord);
+}
     ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    float GetAudioReactAmplitude()
+float GetAudioReactAmplitude()
+{
+    if (checkIfAudioLink() > 0)
     {
-        if(checkIfAudioLink() > 0)
-        {
-            return AudioLinkLerp3_g5(getBand(), getDelay()) * getBandMultiplier();
-        }
-        else
-        {
-            return 1;
-        }
+        return AudioLinkLerp3_g5(getBand(), getDelay()) * getBandMultiplier();
     }
+    else
+    {
+        return 1;
+    }
+}
 
-    float4 GetColorChordLight()
-    {
-        return AudioLinkData(ALPASS_CCLIGHTS).rgba;
-    }
+float4 GetColorChordLight()
+{
+    return AudioLinkData(ALPASS_CCLIGHTS).rgba;
+}
 
-    float4 getEmissionColor()
-    {
-        float4 emissiveColor = UNITY_ACCESS_INSTANCED_PROP(Props,_Emission);
-        float4 col =  UNITY_ACCESS_INSTANCED_PROP(Props,_EnableColorTextureSample) > 0 ? ((emissiveColor.r + emissiveColor.g + emissiveColor.b)/3.0) * GetTextureSampleColor() : emissiveColor;
-        col =  UNITY_ACCESS_INSTANCED_PROP(Props,_EnableThemeColorSampling) > 0 ? ((emissiveColor.r + emissiveColor.g + emissiveColor.b)/3.0) * GetThemeSampleColor() : col;
-        return checkIfColorChord() == 1 ? GetColorChordLight() * 1.5:  col;
-    }
+float4 getEmissionColor()
+{
+    float4 emissiveColor = UNITY_ACCESS_INSTANCED_PROP(Props, _Emission);
+    float4 col = UNITY_ACCESS_INSTANCED_PROP(Props, _EnableColorTextureSample) > 0 ? ((emissiveColor.r + emissiveColor.g + emissiveColor.b) / 3.0) * GetTextureSampleColor() : emissiveColor;
+    col = UNITY_ACCESS_INSTANCED_PROP(Props, _EnableThemeColorSampling) > 0 ? ((emissiveColor.r + emissiveColor.g + emissiveColor.b) / 3.0) * GetThemeSampleColor() : col;
+    return checkIfColorChord() == 1 ? GetColorChordLight() * 1.5 : col;
+}
 #endif
 float getGoboSpinSpeed()
 {
