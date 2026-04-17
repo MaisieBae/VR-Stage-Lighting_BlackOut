@@ -52,6 +52,8 @@ Shader "VRSL/AudioLink/Standard Mover/Projection"
 		 _SamplingTexture ("Texture To Sample From for Color", 2D) = "white" {}
 		 _TextureColorSampleX ("X coordinate to sample the texture from", Range(0,1)) = 0.5
 		 _TextureColorSampleY ("Y coordinate to sample the texture from", Range(0,1)) = 0.5
+		 [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+         _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 		//[Header(MOVER CONTROLS)]
 
 
@@ -132,7 +134,7 @@ Shader "VRSL/AudioLink/Standard Mover/Projection"
     {
         Tags
         {
-            "Queue" = "Transparent+1" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "Transparent+1" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderingPipeline" = "UniversalPipeline"
         }
         Pass
         {

@@ -48,6 +48,8 @@
 		 _SamplingTexture ("Texture To Sample From for Color", 2D) = "white" {}
 		 _TextureColorSampleX ("X coordinate to sample the texture from", Range(0,1)) = 0.5
 		 _TextureColorSampleY ("Y coordinate to sample the texture from", Range(0,1)) = 0.5
+		 [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+         _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 
 		// _BlockLengthX("OSC Block Base Distance X", Float) = 0.019231
 		// _BlockLengthY("OSC Block Base Distance Y", Float) = 0
@@ -115,7 +117,7 @@
     {
         Tags
         {
-            "Queue" = "AlphaTest+1" "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "AlphaTest+1" "RenderType" = "Opaque" "RenderingPipeline" = "UniversalPipeline"
         }
 
         Pass

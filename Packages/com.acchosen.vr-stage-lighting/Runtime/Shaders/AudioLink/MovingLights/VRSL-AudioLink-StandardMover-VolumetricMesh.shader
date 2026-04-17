@@ -12,6 +12,8 @@
 		 _SamplingTexture ("Texture To Sample From for Color", 2D) = "white" {}
 		 _TextureColorSampleX ("X coordinate to sample the texture from", Range(0,1)) = 0.5
 		 _TextureColorSampleY ("Y coordinate to sample the texture from", Range(0,1)) = 0.5
+		 [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+         _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 		 
 		 //[HideInInspector]_FinalStrobeFreq ("Final Strobe Frequency", Float) = 0
 		 //[HideInInspector]_NewTimer("New Timer From Udon For Strobe", Float) = 0
@@ -151,7 +153,7 @@
     {
         Tags
         {
-            "Queue" = "Transparent+2" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "Transparent+2" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderingPipeline" = "UniversalPipeline"
         }
         //Volumetric Pass
         Pass

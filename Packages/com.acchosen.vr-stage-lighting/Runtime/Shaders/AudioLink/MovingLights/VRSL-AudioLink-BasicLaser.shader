@@ -13,6 +13,8 @@
          _BandMultiplier("AudioLink Multiplier", Float) = 1.0
          _Delay("Audio Link Delay", Int) = 0
          _RenderTextureMultiplier("Render Texture Multiplier", Range(1,10)) = 1
+         [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+         _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 
         _UniversalIntensity ("Universal Intensity", Range (0,1)) = 1
         _FinalIntensity("Final Intensity", Range(0,1)) = 1
@@ -52,7 +54,7 @@
     {
         Tags
         {
-            "RenderType"="Transparent" "Queue" = "Transparent+4" "RenderPipeline" = "UniversalPipeline"
+            "RenderType"="Transparent" "Queue" = "Transparent+4" "RenderingPipeline" = "UniversalPipeline"
         }
         Cull Off
         Blend One One
