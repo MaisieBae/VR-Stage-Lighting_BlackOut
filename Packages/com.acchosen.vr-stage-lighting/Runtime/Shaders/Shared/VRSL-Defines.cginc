@@ -1,12 +1,9 @@
 ﻿//MOVER LIGHT SYSTEM DEFINES
 half _BlindingAngleMod;
-sampler2D _MainTex; 
+sampler2D _MainTex;
 
 #ifndef VRSL_SURFACE
-    float4 _MainTex_ST;
-// #else
-//     float _MaxMinPanAngle;
-//     float _MaxMinTiltAngle;
+float4 _MainTex_ST;
 #endif
 
 #ifdef VRSL_DMX
@@ -15,14 +12,14 @@ sampler2D _MainTex;
     sampler2D _Udon_DMXGridRenderTexture, _Udon_DMXGridRenderTextureMovement, _Udon_DMXGridStrobeOutput, _Udon_DMXGridSpinTimer;
     half _SpinSpeed;
 
-    #ifdef FIXTURE_EMIT
+#ifdef FIXTURE_EMIT
         Texture2D   _Udon_VRSL_GI_LightTexture;
         uniform half4  _Udon_VRSL_GI_LightTexture_TexelSize;
         SamplerState    VRSL_PointClampSampler;
         int     _Udon_VRSL_GI_LightCount;
         half _VRSLSpecularStrength;
         half _VRSLGlossiness;
-    #endif
+#endif
 
 #endif
 #ifdef VRSL_AUDIOLINK
@@ -31,11 +28,10 @@ sampler2D _MainTex;
     sampler2D _SamplingTexture;
 #endif
 
-//SamplerState sampler_point_repeat;
 int _IsEven;
 #if !defined(VOLUMETRIC_YES) && !defined(PROJECTION_YES)
-    sampler2D _MetallicGlossMap;
-    sampler2D _BumpMap, _InsideConeNormalMap, _SceneAlbedo;
+sampler2D _MetallicGlossMap;
+sampler2D _BumpMap, _InsideConeNormalMap, _SceneAlbedo;
 #endif
 
 #ifdef FIXTURE_EMIT
@@ -57,7 +53,6 @@ half _StripeSplit, _StripeSplit2, _StripeSplit3, _StripeSplit4, _StripeSplit5, _
 half _StripeSplitScroll;
 half _StripeSplitStrength, _StripeSplitStrength2, _StripeSplitStrength3, _StripeSplitStrength4, _StripeSplitStrength5, _StripeSplitStrength6, _StripeSplitStrength7;
 half4 _FixtureLensOrigin;
-//half _ProjectionNormalBlur;
 
 float4x4 _viewToWorld;
 half _MinimumBeamRadius;
@@ -65,11 +60,11 @@ half _MinimumBeamRadius;
 
 #if defined(VOLUMETRIC_YES)
 
-    #ifdef _HQ_MODE
+#ifdef _HQ_MODE
         sampler2D _NoiseTexHigh;
-    #else
+#else
         sampler2D _NoiseTex;
-    #endif
+#endif
 
     half _Noise2StretchInside;
     half _Noise2Stretch;
@@ -92,14 +87,13 @@ half _MinimumBeamRadius;
     half _Noise2ZPotato;
     half _Noise2PowerPotato;
     
-    
 #endif
 
-    #ifdef _HQ_MODE
+#ifdef _HQ_MODE
         half4 _NoiseTexHigh_ST;
-    #else
-        half4 _NoiseTex_ST;
-    #endif
+#else
+half4 _NoiseTex_ST;
+#endif
 
 half _NoisePower, _NoiseSeed;
 uint _ToggleMagicNoise;
@@ -119,33 +113,23 @@ uint _GoboBeamSplitEnable;
 
 uniform const half compatSampleYAxis = 0.019231;
 uniform const half standardSampleYAxis = 0.00762;
-//half _FixtureRotationX;
-//half _FixtureBaseRotationY;
 half4 _FixtureRotationOrigin;
 half _FixtureMaxIntensity;
-//half _MaxMinPanAngle;
-//half _MaxMinTiltAngle;
 half _ProjectionIntensity;
 half _ProjectionRange;
 half4 _ProjectionRangeOrigin;
 half _ProjectionFade, _ProjectionFadeCurve, _ProjectionDistanceFallOff;
 half _AlphaProjectionIntensity;
 
-//half _FinalStrobeFreq, _NewTimer;
-
-// int _EnableDMX;
-// int _EnableStrobe;
 UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
 uniform half4 _CameraDepthTexture_TexelSize;
 sampler2D _LightMainTex, _ProjectionMainTex;
 float4 _LightMainTex_ST;
 half _ProjectionUVMod, _UseWorldNorm, _ProjectionRotation, _ProjectionUVMod2, _ProjectionUVMod3, _ProjectionUVMod4, _ProjectionUVMod5, _ProjectionUVMod6, _ProjectionUVMod7, _ProjectionUVMod8;
-//half _ProjectionSelection;
 float4 _ProjectionMainTex_ST;
 half _ModX;
 half _ModY;
-half  _ConeSync, _ProjectionShadowHarshness, _BlindingStrength;
-//half _StrobeFreq;
+half _ConeSync, _ProjectionShadowHarshness, _BlindingStrength;
 
 half _PulseSpeed, _BlendSrc, _BlendDst, _BlendOp;
 half _FadeStrength, _FadeAmt, _DistFade, _ProjectionMaxIntensity, _IntensityCutoff;
@@ -156,7 +140,6 @@ int _EnableStaticEmissionColor;
 half4 _StaticEmission;
 half _ProjectionCutoff, _ProjectionOriginCutoff, _GradientMod, _GradientModGOBO;
 half _ClippingThreshold, _RenderTextureMultiplier;
-//Instanced Properties
 
 UNITY_INSTANCING_BUFFER_START(Props)
     #ifdef VRSL_DMX
@@ -165,6 +148,11 @@ UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(uint, _EnableDMX)
         UNITY_DEFINE_INSTANCED_PROP(uint, _LegacyGoboRange)
     #endif
+    // Blackout fallback props live outside the AudioLink guard so every
+    // AudioLink fixture variant (standard, RAW, WASH, moving lights, static)
+    // can bind and read them at runtime. DMX shaders are unaffected.
+    UNITY_DEFINE_INSTANCED_PROP(int, _BlackoutUseFallback)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _BlackoutFallbackColor)
     #ifdef VRSL_AUDIOLINK
         UNITY_DEFINE_INSTANCED_PROP(half, _EnableAudioLink)
         UNITY_DEFINE_INSTANCED_PROP(half, _EnableColorChord)
@@ -179,8 +167,6 @@ UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(half, _ThemeColorTarget)
         UNITY_DEFINE_INSTANCED_PROP(uint, _EnableThemeColorSampling)
         UNITY_DEFINE_INSTANCED_PROP(uint, _UseTraditionalSampling)
-        UNITY_DEFINE_INSTANCED_PROP(int, _BlackoutUseFallback)
-        UNITY_DEFINE_INSTANCED_PROP(float4, _BlackoutFallbackColor)
     #endif
     UNITY_DEFINE_INSTANCED_PROP(uint, _PanInvert)
     UNITY_DEFINE_INSTANCED_PROP(uint, _TiltInvert)
@@ -200,4 +186,3 @@ UNITY_INSTANCING_BUFFER_START(Props)
     UNITY_DEFINE_INSTANCED_PROP(half, _MaxMinPanAngle)
     UNITY_DEFINE_INSTANCED_PROP(half, _MaxMinTiltAngle)
 UNITY_INSTANCING_BUFFER_END(Props)
-
