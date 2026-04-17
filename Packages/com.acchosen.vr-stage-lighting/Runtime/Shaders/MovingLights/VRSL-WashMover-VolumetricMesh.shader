@@ -7,6 +7,8 @@
 		 [HideInInspector][Toggle] _NineUniverseMode ("Extended Universe Mode", Int) = 0
 		 [HideInInspector][Toggle] _PanInvert ("Invert Mover Pan", Int) = 0
 		 [HideInInspector][Toggle] _TiltInvert ("Invert Mover Tilt", Int) = 0
+		 [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+		[HDR] _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (0,0,0,1)
 
 		 //[HideInInspector]_FinalStrobeFreq ("Final Strobe Frequency", Float) = 0
 		 //[HideInInspector]_NewTimer("New Timer From Udon For Strobe", Float) = 0
@@ -144,7 +146,7 @@
     {
         Tags
         {
-            "Queue" = "Transparent+2" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "Transparent+2" "IgnoreProjector"="True" "RenderType" = "Transparent" "RenderingPipeline" = "UniversalPipeline"
         }
         //Volumetric Pass
 
