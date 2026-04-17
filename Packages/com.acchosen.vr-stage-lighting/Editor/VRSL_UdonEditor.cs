@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Threading;
 
@@ -234,9 +234,6 @@ namespace VRSL.EditorScripts
             serializedObject.FindProperty("nineUniverseMode").boolValue = EditorGUILayout.Toggle(new GUIContent("Extended Universe Mode", 
             "Enables 9-Universe mode for this fixture. The grid will be split up by RGB channels with each section and color representing a universe." + 
             " Only availble on the Vertical and Horizontal Grid nodes."), fixture.nineUniverseMode);
-
-            serializedObject.FindProperty("enableFineChannels").boolValue = EditorGUILayout.Toggle(new GUIContent("Enable Fine Channels (For Pan/Tilt)",
-            "Enables the computation of fine channels for pan and tilt. This allows for smoother movement of movers when using DMX control if your stream is stable enough to support it"), fixture.enableFineChannels);
             
             serializedObject.FindProperty("fixtureID").intValue = EditorGUILayout.IntField(new GUIContent("Fixture ID", 
             "The ID number for this fixture. This is mostly for organizational purposes and is entirely optional. Most DMX software have an ID attached to each fixture to run the fixtures through commands more easily, and it is recommended to have those IDs lined up here as well for the sake simplicity. This ID is public and can also be used for Udon scripting as well."),fixture.fixtureID);
@@ -338,11 +335,7 @@ namespace VRSL.EditorScripts
             if(EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
-                foreach(UnityEngine.Object obj in targets)
-                {
-                    VRStageLighting_DMX_Static f = (VRStageLighting_DMX_Static)obj;
-                    UpdateSettings(f);
-                }
+                UpdateSettings(fixture);
             //EditorGUIUtility.LookLikeControls();
             }
         }
@@ -434,11 +427,7 @@ namespace VRSL.EditorScripts
             base.OnInspectorGUI();
             if(EditorGUI.EndChangeCheck())
             {
-                foreach(UnityEngine.Object obj in targets)
-                {
-                    VRStageLighting_AudioLink_Laser f = (VRStageLighting_AudioLink_Laser)obj;
-                    UpdateSettings(f);
-                }
+                UpdateSettings(fixture);
             }
         }
     }
@@ -577,14 +566,46 @@ namespace VRSL.EditorScripts
                 "Sets the maximum brightness value of Global Intensity. Good for personalized settings of the max brightness of the shader by other users via UI."), fixture.finalIntensity, 0.0f, 1.0f);
             }
 
-            if(EditorGUI.EndChangeCheck())
+            
+EditorGUI.indentLevel--;
+
+EditorGUILayout.Space();
+GuiLine();
+EditorGUILayout.Space();
+EditorGUILayout.LabelField("Blackout Settings", SectionLabel());
+
+SerializedProperty enableBlackoutProp = serializedObject.FindProperty("enableBlackout");
+SerializedProperty blackoutUseFallbackProp = serializedObject.FindProperty("blackoutUseFallback");
+SerializedProperty blackoutFallbackColorProp = serializedObject.FindProperty("blackoutFallbackColor");
+
+if (enableBlackoutProp != null)
+{
+    EditorGUILayout.PropertyField(enableBlackoutProp, new GUIContent("Enable Blackout",
+        "Enable or disable the blackout feature for this fixture."));
+}
+if (blackoutUseFallbackProp != null)
+{
+    EditorGUILayout.PropertyField(blackoutUseFallbackProp, new GUIContent("Use Fallback Color on Blackout",
+        "When AudioLink colour sampling returns black, show the fallback colour instead of going fully dark."));
+    if (blackoutUseFallbackProp.boolValue && blackoutFallbackColorProp != null)
+    {
+        EditorGUI.indentLevel++;
+        EditorGUILayout.PropertyField(blackoutFallbackColorProp, new GUIContent("Blackout Fallback Color",
+            "The colour to display when AudioLink samples black and blackout is active."));
+        EditorGUI.indentLevel--;
+    }
+}
+else if (blackoutFallbackColorProp != null)
+{
+    EditorGUILayout.PropertyField(blackoutFallbackColorProp, new GUIContent("Blackout Fallback Color",
+        "The colour to display when AudioLink samples black and blackout is active."));
+}
+EditorGUI.indentLevel++; // restore indent for the section that follows
+
+if(EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
-                foreach(UnityEngine.Object obj in targets)
-                {
-                    VRStageLighting_AudioLink_Static f = (VRStageLighting_AudioLink_Static)obj;
-                    UpdateSettings(f);
-                }
+                UpdateSettings(fixture);
             //EditorGUIUtility.LookLikeControls();
             }
 
