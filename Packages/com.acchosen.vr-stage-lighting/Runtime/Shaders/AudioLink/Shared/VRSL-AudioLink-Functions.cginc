@@ -57,11 +57,26 @@ uint checkTiltInvertZ()
 
 float4 GetTextureSampleColor()
 {
-    float4 rawColor = tex2Dlod(_SamplingTexture, float4(UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleX), UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleY), 0, 0));
+    float4 rawColor = tex2Dlod(_SamplingTexture, float4(
+        UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleX),
+        UNITY_ACCESS_INSTANCED_PROP(Props,_TextureColorSampleY),
+        0, 0
+    ));
+
+    float luma = dot(rawColor.rgb, float3(0.2126, 0.7152, 0.0722));
+    if (luma <= 0.001)
+    {
+        if (UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutUseFallback) > 0)
+            return UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutFallbackColor);
+        else
+            return float4(0, 0, 0, rawColor.a);
+    }
+
     float4 h = RGBtoHSV(rawColor.rgb);
     h.z = 1.0;
-    //return(HSVtoRGB(h) * _RenderTextureMultiplier);
-    return UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0 ? rawColor * _RenderTextureMultiplier : (HSVtoRGB(h) * _RenderTextureMultiplier);
+    return UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0
+        ? rawColor * _RenderTextureMultiplier
+        : (HSVtoRGB(h) * _RenderTextureMultiplier);
 }
 
 float4 GetThemeSampleColor()
