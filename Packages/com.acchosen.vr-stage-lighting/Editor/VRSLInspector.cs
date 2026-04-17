@@ -45,7 +45,6 @@ public class VRSLInspector : ShaderGUI
     MaterialProperty _SignalDetectionSystem = null;
     MaterialProperty _SignalDetectionSensativity = null;
     MaterialProperty _EnableDMX = null;
-    MaterialProperty _EnableFineChannels = null;
     MaterialProperty _EnableExtraChannels = null;
     // MaterialProperty _Udon_DMXGridRenderTextureMovement = null;
     // MaterialProperty _Udon_DMXGridRenderTexture = null;
@@ -260,6 +259,10 @@ public class VRSLInspector : ShaderGUI
     MaterialProperty _EnableColorTextureSample = null;
     MaterialProperty _EnableThemeColorSampling = null;
     MaterialProperty _ThemeColorTarget = null;
+
+    //Blackout Fallback
+    MaterialProperty _BlackoutUseFallback = null;
+    MaterialProperty _BlackoutFallbackColor = null;
 
 
 
@@ -1080,7 +1083,6 @@ public class VRSLInspector : ShaderGUI
                 matEditor.ShaderProperty(_EnableDMX, new GUIContent("Enable DMX", "Enables or Disables reading from the DMX Render Textures"));
                 matEditor.ShaderProperty(_NineUniverseMode, new GUIContent("Enable Extended Universe Mode", "Enables or Disables extended universe mode (9-universes via RGB)"));
                 matEditor.ShaderProperty(_DMXChannel, new GUIContent("DMX Channel","Chooses the DMX Address to start this fixture at."));
-                matEditor.ShaderProperty(_EnableFineChannels, new GUIContent("Enable Fine Channels", "Enables fine channel input for Pan and Tilt, allowing for more precise movement control."));
                 EditorGUI.indentLevel--;   
                 VRSLStyles.PartingLine();
                 EditorGUILayout.HelpBox("These are the render texture grids used to read DMX signals from a video panel.", MessageType.None,true);
@@ -1267,7 +1269,6 @@ public class VRSLInspector : ShaderGUI
                 matEditor.ShaderProperty(_EnableDMX, new GUIContent("Enable DMX", "Enables or Disables reading from the DMX Render Textures"));
                 matEditor.ShaderProperty(_NineUniverseMode, new GUIContent("Enable Extended Universe Mode", "Enables or Disables extended universe mode (9-universes via RGB)"));
                 matEditor.ShaderProperty(_DMXChannel, new GUIContent("DMX Channel","Chooses the DMX Address to start this fixture at."));
-                matEditor.ShaderProperty(_EnableFineChannels, new GUIContent("Enable Fine Channels", "Enables fine channel input for Pan and Tilt, allowing for more precise movement control."));
                 matEditor.ShaderProperty(_EnableExtraChannels, new GUIContent("Enable Cone Length DMX Controls","Enable this if you want to be able to extend the lenghth of the cone on Channel 2!"));
                 EditorGUI.indentLevel--;   
                 VRSLStyles.PartingLine();
@@ -1597,7 +1598,6 @@ public class VRSLInspector : ShaderGUI
                 matEditor.ShaderProperty(_EnableDMX, new GUIContent("Enable DMX", "Enables or Disables reading from the DMX Render Textures"));
                 matEditor.ShaderProperty(_NineUniverseMode, new GUIContent("Enable Extended Universe Mode", "Enables or Disables extended universe mode (9-universes via RGB)"));
                 matEditor.ShaderProperty(_DMXChannel, new GUIContent("DMX Channel","Chooses the DMX Address to start this fixture at."));
-                matEditor.ShaderProperty(_EnableFineChannels, new GUIContent("Enable Fine Channels", "Enables fine channel input for Pan and Tilt, allowing for more precise movement control."));
                 EditorGUI.indentLevel--;   
                 VRSLStyles.PartingLine();
                 EditorGUILayout.HelpBox("These are the render texture grids used to read DMX signals from a video panel.", MessageType.None,true);
@@ -1733,6 +1733,19 @@ public class VRSLInspector : ShaderGUI
             {
                 matEditor.ShaderProperty(_UseTraditionalSampling, new GUIContent("Use Traditional Texture Sampling", "Disable Black to white conversion in texture sampling"));
             }
+
+            GUILayout.Space(5);
+            if (_BlackoutUseFallback != null)
+            {
+                matEditor.ShaderProperty(_BlackoutUseFallback, new GUIContent("Use Fallback Color on Blackout", "When AudioLink samples black, display this color instead of going fully dark."));
+                if (_BlackoutUseFallback.floatValue > 0f && _BlackoutFallbackColor != null)
+                {
+                    EditorGUI.indentLevel++;
+                    matEditor.ShaderProperty(_BlackoutFallbackColor, new GUIContent("Blackout Fallback Color", "The color to use when AudioLink samples black."));
+                    EditorGUI.indentLevel--;
+                }
+            }
+
             EditorGUI.indentLevel--;
             GUILayout.Space(5);
         
