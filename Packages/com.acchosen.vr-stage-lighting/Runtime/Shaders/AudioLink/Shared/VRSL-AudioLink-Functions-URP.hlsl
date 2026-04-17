@@ -79,9 +79,19 @@ float4 GetTextureSampleColor()
     float4 h = RGBtoHSV(rawColor.rgb);
     h.z = 1.0;
 
-    return UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0
-               ? rawColor * _RenderTextureMultiplier
-               : (HSVtoRGB(h) * _RenderTextureMultiplier);
+float4 processed = UNITY_ACCESS_INSTANCED_PROP(Props, _UseTraditionalSampling) > 0
+    ? rawColor * _RenderTextureMultiplier
+    : (HSVtoRGB(h) * _RenderTextureMultiplier);
+    return ApplyBlackoutFallback(processed);
+}
+
+inline float4 ApplyBlackoutFallback(float4 color)
+{
+    float brightness = (color.r + color.g + color.b) / 3.0;
+    float4 fallback = UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutUseFallback) > 0
+        ? UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutFallbackColor)
+        : float4(0, 0, 0, 1);
+    return brightness < 0.01 ? fallback : color;
 }
 
 float4 GetThemeSampleColor()
