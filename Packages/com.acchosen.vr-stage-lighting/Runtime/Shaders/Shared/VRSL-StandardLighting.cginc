@@ -174,27 +174,38 @@ float4 CustomStandardLightingBRDF(
             if(((i.uv.x) == 0.0 && (i.uv.y) == 0.0 || _PureEmissiveToggle == 1))
             {
                 float4 emission = getEmissionColor();
-                float intensities = getGlobalIntensity() * getFinalIntensity() * _UniversalIntensity;
-                emission *=(_FixtureMaxIntensity)*1500;
-                emission = clamp(emission, 0, (_LensMaxBrightness*100 * intensities));
-                half limit = 0.025;
 
-                #ifndef RAW
-                    emission = lerp((half4(0,0,0,emission.w)), emission, GetAudioReactAmplitude());
+                float colorLuma = dot(emission.rgb, float3(0.2126, 0.7152, 0.0722));
+                float isBlack = 1.0 - step(0.001, colorLuma);   // 1 when black, 0 otherwise
+                float4 fallback = UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutUseFallback) > 0
+                    ? UNITY_ACCESS_INSTANCED_PROP(Props, _BlackoutFallbackColor)
+                    : half4(0, 0, 0, 1);
+
+                float intensities = getGlobalIntensity() * getFinalIntensity() * _UniversalIntensity;
+                emission *= (_FixtureMaxIntensity) * 1500;
+                emission = clamp(emission, 0, (_LensMaxBrightness * 100 * intensities));
+
+#ifndef RAW
+                    emission = lerp(half4(0,0,0,emission.w), emission, GetAudioReactAmplitude());
                 #endif
-                emission = lerp((half4(0,0,0,emission.w)), emission, intensities);
+
+                emission = lerp(half4(0,0,0,emission.w), emission, intensities);
 
                 #ifdef WASH
-                emission = i.uv1.y > 0.0 ? saturate(emission) - 0.25 : emission;
+                    emission = i.uv1.y > 0.0 ? saturate(emission) - 0.25 : emission;
                 #endif
+
                 lighting = emission;
-                
-                float lightingAVG = (lighting.x + lighting.y + lighting.z)/3;
+
+                float lightingAVG = (lighting.x + lighting.y + lighting.z) / 3;
+
                 #ifdef RAW
-                    lighting = lerp(lighting,float3(lightingAVG, lightingAVG, lightingAVG), pow(_Saturation,2));
+                    lighting = lerp(lighting, float3(lightingAVG, lightingAVG, lightingAVG), pow(_Saturation, 2));
                 #else
-                    lighting = lerp(lighting,float3(lightingAVG, lightingAVG, lightingAVG), pow(_Saturation,1));
+                    lighting = lerp(lighting, float3(lightingAVG, lightingAVG, lightingAVG), pow(_Saturation, 1));
                 #endif
+
+                lighting = lerp(lighting, fallback.rgb, isBlack);
 
                 return float4(lighting, al);
             }
@@ -203,7 +214,7 @@ float4 CustomStandardLightingBRDF(
                 lighting += (tex2D(_DecorativeEmissiveMap, i.uv) * _DecorativeEmissiveMapStrength);
                 return float4(lighting, al);
             }
-        #endif
+#endif
         //////////////////////
         
 
