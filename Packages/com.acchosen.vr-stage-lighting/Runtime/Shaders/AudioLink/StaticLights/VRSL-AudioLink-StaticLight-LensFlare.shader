@@ -28,6 +28,8 @@
         _RenderTextureMultiplier("Render Texture Multiplier", Range(1,10)) = 1
         _RemoveTextureArtifact("RemoveTextureArtifact", Range(0,0.1)) = 0
         [Toggle]_UseTraditionalSampling("Use Traditional Texture Sampling", Int) = 0
+        [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+        _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 
         [Toggle] _EnableColorTextureSample ("Enable Color Texture Sampling", Int) = 0
 		 _SamplingTexture ("Texture To Sample From for Color", 2D) = "white" {}
@@ -69,7 +71,7 @@
     {
         Tags
         {
-            "RenderType"="Transparent" "Queue" = "Transparent+200" "RenderPipeline" = "UniversalPipeline"
+            "RenderType"="Transparent" "Queue" = "Transparent+200" "RenderingPipeline" = "UniversalPipeline"
         }
         LOD 100
 

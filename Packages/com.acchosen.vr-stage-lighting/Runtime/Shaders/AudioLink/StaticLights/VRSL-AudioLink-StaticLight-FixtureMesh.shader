@@ -18,6 +18,8 @@
 		 _TextureColorSampleX ("X coordinate to sample the texture from", Range(0,1)) = 0.5
 		 _TextureColorSampleY ("Y coordinate to sample the texture from", Range(0,1)) = 0.5
         _RenderTextureMultiplier("Render Texture Multiplier", Range(1,10)) = 1
+        [Toggle] _BlackoutUseFallback ("Use Fallback Color on Blackout", Float) = 0
+        _BlackoutFallbackColor ("Blackout Fallback Color", Color) = (1,1,1,1)
 
         [Toggle] _EnableOSC ("Enable Stream OSC/DMX Control", Int) = 0
         _FixutreIntensityMultiplier ("Intensity Multipler (For Bloom Scaling)", Range(1,15)) = 1
@@ -55,7 +57,7 @@
     {
         Tags
         {
-            "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"
+            "RenderType" = "Opaque" "RenderingPipeline" = "UniversalPipeline"
         }
         LOD 200
 
