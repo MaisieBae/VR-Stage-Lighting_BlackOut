@@ -1722,7 +1722,7 @@ public class VRSLInspector : ShaderGUI
 
     public void ColorTextureSamplingGUI(MaterialEditor matEditor, MaterialProperty[] props, Material target)
     {
-        if(isDMXCompatible || isRTShader || isDiscoBall) return;
+        if(isRTShader || isDiscoBall) return;
             matEditor.ShaderProperty(_EnableColorTextureSample, new GUIContent("Enable Color Texture Sampling", "Check this box if you wish to sample seperate texture for the color. The color will be influenced by the intensity of the original emission color!"));
             EditorGUI.indentLevel++;
             matEditor.TexturePropertySingleLine(new GUIContent("Color Sampling Texture", "The texture to sample the color from when ''Enable Color Texture Sampling'' is enabled"),_SamplingTexture);
